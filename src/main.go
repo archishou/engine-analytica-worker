@@ -36,6 +36,8 @@ func workerReady(instanceUrl string) (WorkerReadyResponse, error) {
 
 func main() {
 	url := "http://127.0.0.1:65123"
+
+	fmt.Println("[INFO] Fetching workload.")
 	workerResponse, err := workerReady(url)
 	if err != nil {
 		fmt.Println(err)
