@@ -7,9 +7,9 @@ app = Flask(__name__)
 @app.route('/worker-ready')
 def default_get():
     workload = {
-        'repo': 'https://github.com/archishou/MidnightChessEngine',
-        'branch': 'master',
-        'batch_size': '10',
+        'repoUrl': 'https://github.com/archishou/MidnightChessEngine',
+        'baseBranch': 'master',
+        'batchSize': '10',
     }
     return workload
 

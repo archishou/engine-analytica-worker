@@ -1,37 +1,45 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 )
 
-func downloadFile(filepath string, url string) (err error) {
-	out, err := os.Create(filepath)
+type WorkerReadyResponse struct {
+	RepoURL    string `json:"repoUrl"`
+	BaseBranch string `json:"baseBranch"`
+	BatchSize  string `json:"batchSize"`
+}
+
+func workerReady(instanceUrl string) (WorkerReadyResponse, error) {
+	isReadyRequest := instanceUrl + "/worker-ready"
+	res, err := http.Get(isReadyRequest)
+
 	if err != nil {
-		return err
+		return WorkerReadyResponse{}, err
 	}
-	defer out.Close()
 
-	resp, err := http.Get(url)
+	response := WorkerReadyResponse{}
+
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&response)
+
 	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad status: %s", resp.Status)
+		return WorkerReadyResponse{}, err
 	}
 
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return response, nil
 }
 
 func main() {
+	url := "http://127.0.0.1:65123"
+	workerResponse, err := workerReady(url)
+	if err != nil {
+		fmt.Println(err)
+	}
 
+	fmt.Println("hello", workerResponse.RepoURL)
+	fmt.Println("hello", workerResponse.BaseBranch)
+	fmt.Println("hello", workerResponse.BatchSize)
 }
