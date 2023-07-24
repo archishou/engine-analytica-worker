@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-git/go-git/v5"
 	"net/http"
+	"os"
 )
 
 type WorkerReadyResponse struct {
@@ -39,7 +41,9 @@ func main() {
 		fmt.Println(err)
 	}
 
-	fmt.Println("hello", workerResponse.RepoURL)
-	fmt.Println("hello", workerResponse.BaseBranch)
-	fmt.Println("hello", workerResponse.BatchSize)
+	_, _ = git.PlainClone("tmp", false, &git.CloneOptions{
+		URL: workerResponse.RepoURL,
+		//RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+		Progress: os.Stdout,
+	})
 }
