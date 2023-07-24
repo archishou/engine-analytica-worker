@@ -14,8 +14,27 @@ type WorkerReadyResponse struct {
 	BatchSize  string `json:"batchSize"`
 }
 
+var tmpDirectory = "tmp"
+var cutechessBinaryDir = tmpDirectory + "/cutechess-binaries"
+var repoDirs = tmpDirectory + "/repos"
+
+func fetchCutechessBinaries() {
+	if _, err := os.Stat(cutechessBinaryDir); err != nil {
+		if os.IsNotExist(err) {
+			fmt.Println("[INFO] Fetching cutechess binaries.")
+			_, _ = git.PlainClone(cutechessBinaryDir, false, &git.CloneOptions{
+				URL:      "https://github.com/archishou/cutechess-binaries.git",
+				Progress: os.Stdout,
+			})
+		} else {
+			fmt.Println("Failed to fetch cutchess-cli-binaries", err)
+		}
+	}
+}
+
 func workerReady(instanceUrl string) (WorkerReadyResponse, error) {
 	isReadyRequest := instanceUrl + "/worker-ready"
+	fmt.Println("[INFO] Fetching workload.")
 	res, err := http.Get(isReadyRequest)
 
 	if err != nil {
@@ -36,16 +55,14 @@ func workerReady(instanceUrl string) (WorkerReadyResponse, error) {
 
 func main() {
 	url := "http://127.0.0.1:65123"
-
-	fmt.Println("[INFO] Fetching workload.")
+	fetchCutechessBinaries()
 	workerResponse, err := workerReady(url)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	_, _ = git.PlainClone("tmp", false, &git.CloneOptions{
-		URL: workerResponse.RepoURL,
-		//RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+	_, _ = git.PlainClone(repoDirs, false, &git.CloneOptions{
+		URL:      workerResponse.RepoURL,
 		Progress: os.Stdout,
 	})
 }
