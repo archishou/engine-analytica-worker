@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"engine-analytica-worker/logging"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -25,7 +26,7 @@ var devDir = repoDirs + "/dev"
 func fetchCutechessBinaries() {
 	if _, err := os.Stat(cutechessBinaryDir); err != nil {
 		if os.IsNotExist(err) {
-			logInfo("Fetching cutechess binaries")
+			logging.LogInfo("Fetching cutechess binaries")
 			_, _ = git.PlainClone(cutechessBinaryDir, false, &git.CloneOptions{
 				URL:      "https://github.com/archishou/cutechess-binaries.git",
 				Progress: os.Stdout,
@@ -38,7 +39,7 @@ func fetchCutechessBinaries() {
 
 func workerReady(instanceUrl string) (WorkerReadyResponse, error) {
 	isReadyRequest := instanceUrl + "/worker-ready"
-	logInfo("Fetching workload.")
+	logging.LogInfo("Fetching workload.")
 	res, err := http.Get(isReadyRequest)
 
 	if err != nil {
@@ -65,14 +66,14 @@ func main() {
 		fmt.Println(err)
 	}
 
-	logInfo("Cloning base branch")
+	logging.LogInfo("Cloning base branch")
 	_, _ = git.PlainClone(baseDir, false, &git.CloneOptions{
 		URL:           workerResponse.RepoURL,
 		Progress:      os.Stdout,
 		ReferenceName: plumbing.NewBranchReferenceName(workerResponse.BaseBranch),
 	})
 
-	logInfo("Cloning dev branch")
+	logging.LogInfo("Cloning dev branch")
 	_, _ = git.PlainClone(devDir, false, &git.CloneOptions{
 		URL:           workerResponse.RepoURL,
 		Progress:      os.Stdout,
