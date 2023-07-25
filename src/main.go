@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"engine-analytica-worker/logging"
-	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"net/http"
@@ -32,7 +31,7 @@ func fetchCutechessBinaries() {
 				Progress: os.Stdout,
 			})
 		} else {
-			fmt.Println("Failed to fetch cutchess-cli-binaries", err)
+			logging.LogError("Failed to fetch cutchess-cli-binaries", err)
 		}
 	}
 }
@@ -63,7 +62,7 @@ func main() {
 	fetchCutechessBinaries()
 	workerResponse, err := workerReady(url)
 	if err != nil {
-		fmt.Println(err)
+		logging.LogError(err)
 	}
 
 	logging.LogInfo("Cloning base branch")
