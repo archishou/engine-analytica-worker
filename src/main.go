@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"net/http"
 	"os"
 )
@@ -11,12 +12,15 @@ import (
 type WorkerReadyResponse struct {
 	RepoURL    string `json:"repoUrl"`
 	BaseBranch string `json:"baseBranch"`
+	DevBranch  string `json:"devBranch"`
 	BatchSize  string `json:"batchSize"`
 }
 
 var tmpDirectory = "tmp"
 var cutechessBinaryDir = tmpDirectory + "/cutechess-binaries"
 var repoDirs = tmpDirectory + "/repos"
+var baseDir = repoDirs + "/base"
+var devDir = repoDirs + "/dev"
 
 func fetchCutechessBinaries() {
 	if _, err := os.Stat(cutechessBinaryDir); err != nil {
@@ -61,8 +65,15 @@ func main() {
 		fmt.Println(err)
 	}
 
-	_, _ = git.PlainClone(repoDirs, false, &git.CloneOptions{
-		URL:      workerResponse.RepoURL,
-		Progress: os.Stdout,
+	_, _ = git.PlainClone(baseDir, false, &git.CloneOptions{
+		URL:           workerResponse.RepoURL,
+		Progress:      os.Stdout,
+		ReferenceName: plumbing.NewBranchReferenceName(workerResponse.BaseBranch),
+	})
+
+	_, _ = git.PlainClone(devDir, false, &git.CloneOptions{
+		URL:           workerResponse.RepoURL,
+		Progress:      os.Stdout,
+		ReferenceName: plumbing.NewBranchReferenceName(workerResponse.DevBranch),
 	})
 }

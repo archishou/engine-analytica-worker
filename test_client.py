@@ -9,6 +9,7 @@ def default_get():
     workload = {
         'repoUrl': 'https://github.com/archishou/MidnightChessEngine',
         'baseBranch': 'master',
+        'devBranch':  'dev-sample',
         'batchSize': '10',
     }
     return workload
