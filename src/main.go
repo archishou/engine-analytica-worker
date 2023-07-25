@@ -25,7 +25,7 @@ var devDir = repoDirs + "/dev"
 func fetchCutechessBinaries() {
 	if _, err := os.Stat(cutechessBinaryDir); err != nil {
 		if os.IsNotExist(err) {
-			fmt.Println("[INFO] Fetching cutechess binaries.")
+			logInfo("Fetching cutechess binaries")
 			_, _ = git.PlainClone(cutechessBinaryDir, false, &git.CloneOptions{
 				URL:      "https://github.com/archishou/cutechess-binaries.git",
 				Progress: os.Stdout,
@@ -38,7 +38,7 @@ func fetchCutechessBinaries() {
 
 func workerReady(instanceUrl string) (WorkerReadyResponse, error) {
 	isReadyRequest := instanceUrl + "/worker-ready"
-	fmt.Println("[INFO] Fetching workload.")
+	logInfo("Fetching workload.")
 	res, err := http.Get(isReadyRequest)
 
 	if err != nil {
@@ -65,14 +65,14 @@ func main() {
 		fmt.Println(err)
 	}
 
-	fmt.Println("[INFO] Cloning base branch")
+	logInfo("Cloning base branch")
 	_, _ = git.PlainClone(baseDir, false, &git.CloneOptions{
 		URL:           workerResponse.RepoURL,
 		Progress:      os.Stdout,
 		ReferenceName: plumbing.NewBranchReferenceName(workerResponse.BaseBranch),
 	})
 
-	fmt.Println("[INFO] Cloning dev branch")
+	logInfo("Cloning dev branch")
 	_, _ = git.PlainClone(devDir, false, &git.CloneOptions{
 		URL:           workerResponse.RepoURL,
 		Progress:      os.Stdout,
